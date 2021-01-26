@@ -1,11 +1,12 @@
 import json
-
+from flask_expects_json import expects_json
 from flask import Flask, request, Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from database import engine, Base
 from models import Rectangle
+from schema import filter_input_schema
 from serializers import rectangle_serializer
 
 app = Flask(__name__)
@@ -16,19 +17,17 @@ Session = sessionmaker(bind=engine)
 
 
 @app.route('/', methods=['POST'])
+@expects_json(filter_input_schema)
 def filter_rectangles():
-    try:
-        json_request = json.loads(request.data)
-        main = json_request['main']
-        rectangles = json_request['input']
-        session = Session()
-        target = Rectangle(**main)
-        for item in rectangles:
-            rectangle = Rectangle(**item)
-            if target.overlap(rectangle):
-                session.add(rectangle)
-    except:
-        return Response(status=400)
+    json_request = json.loads(request.data)
+    main = json_request['main']
+    rectangles = json_request['input']
+    session = Session()
+    target = Rectangle(**main)
+    for item in rectangles:
+        rectangle = Rectangle(**item)
+        if target.overlaps(rectangle):
+            session.add(rectangle)
     try:
         session.commit()
     except IntegrityError:

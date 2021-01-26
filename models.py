@@ -25,7 +25,7 @@ class Rectangle(Base):
         down = rectangle.y + rectangle.height
         return left, right, up, down
 
-    def overlap(self, rectangle):
+    def overlaps(self, rectangle):
         left_1, right_1, up_1, down_1 = self._transform(self)
         left_2, right_2, up_2, down_2 = self._transform(rectangle)
 
