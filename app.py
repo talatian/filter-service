@@ -28,10 +28,11 @@ def filter_rectangles():
         rectangle = Rectangle(**item)
         if target.overlaps(rectangle):
             session.add(rectangle)
-    try:
-        session.commit()
-    except IntegrityError:
-        session.rollback()
+            try:
+                session.commit()
+            except IntegrityError:
+                session.rollback()
+    session.close()
     return Response(status=200)
 
 
@@ -39,6 +40,7 @@ def filter_rectangles():
 def list_rectangles():
     session = Session()
     rectangles = session.query(Rectangle).all()
+    session.close()
     response = rectangle_serializer(rectangles)
     return response
 
